@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>System Metrics Dashboard</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+
+        body {
+            background-color: #f0f2f5;
+            min-height: 100vh;
+        }
+
+        .dashboard {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: white;
+            border-radius: 12px;
+            padding: 3rem;
+            margin-top: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        @media (min-width: 640px) {
+            .dashboard {
+                padding: 2rem;
+            }
+        }
+
+        h1 {
+            color: #1a1a1a;
+            margin-bottom: 1.5rem;
+            font-size: 1.5rem;
+            text-align: center;
+        }
+
+        @media (min-width: 640px) {
+            h1 {
+                font-size: 24px;
+                text-align: left;
+                margin-bottom: 2rem;
+            }
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1rem;
+        }
+
+        @media (min-width: 768px) {
+            .metrics-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 2rem;
+            }
+        }
+
+        .metric-card {
+            background: #fff;
+            border: 1px solid #e1e4e8;
+            border-radius: 8px;
+            padding: 1rem;
+            min-width: 0; /* Prevents overflow in grid items */
+        }
+
+        @media (min-width: 640px) {
+            .metric-card {
+                padding: 1.5rem;
+            }
+        }
+
+        .metric-title {
+            color: #586069;
+            font-size: 0.875rem;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+
+        @media (min-width: 640px) {
+            .metric-title {
+                text-align: left;
+            }
+        }
+
+        .graph-container {
+            height: 150px;
+            position: relative;
+            background: #f6f8fa;
+            border-radius: 4px;
+            padding: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        @media (min-width: 640px) {
+            .graph-container {
+                height: 200px;
+                padding: 1rem;
+            }
+        }
+
+        .graph-bar {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: linear-gradient(180deg, #79b8ff 0%, #2188ff 100%);
+            transition: height 0.3s ease;
+            border-radius: 4px 4px 0 0;
+        }
+
+        .memory-bar {
+            background: linear-gradient(180deg, #85e89d 0%, #28a745 100%);
+        }
+
+        .metric-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #1a1a1a;
+            margin-bottom: 0.5rem;
+            text-align: center;
+        }
+
+        @media (min-width: 640px) {
+            .metric-value {
+                font-size: 2rem;
+                text-align: left;
+            }
+        }
+
+        .metric-label {
+            color: #586069;
+            font-size: 0.875rem;
+            text-align: center;
+        }
+
+        @media (min-width: 640px) {
+            .metric-label {
+                text-align: left;
+            }
+        }
+
+        .metric-details {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid #e1e4e8;
+        }
+
+        @media (min-width: 640px) {
+            .metric-details {
+                gap: 1rem;
+            }
+        }
+
+        .detail-item {
+            flex: 1;
+            min-width: 120px;
+            text-align: center;
+        }
+
+        .detail-value {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #1a1a1a;
+        }
+
+        @media (min-width: 640px) {
+            .detail-value {
+                font-size: 1.125rem;
+            }
+        }
+
+        .detail-label {
+            font-size: 0.75rem;
+            color: #586069;
+            margin-top: 0.25rem;
+        }
+
+        /* Navbar styling */
+        .navbar {
+            background-color: #1a1a1a;
+            padding: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: #ffffff;
+        }
+
+        .navbar h2 {
+            font-size: 1.25rem;
+            margin: 0;
+        }
+
+        .navbar ul {
+            list-style: none;
+            display: flex;
+            gap: 1.5rem;
+        }
+
+        .navbar ul li {
+            display: inline;
+        }
+
+        .navbar ul li a {
+            color: #ffffff;
+            text-decoration: none;
+        }
+
+        /* Hamburger icon for small screens */
+        .hamburger {
+            display: none;
+            flex-direction: column;
+            cursor: pointer;
+            gap: 0.25rem;
+        }
+
+        .hamburger div {
+            width: 25px;
+            height: 3px;
+            background-color: white;
+        }
+
+        @media (max-width: 768px) {
+            .navbar ul {
+                display: none;
+                flex-direction: column;
+                background-color: #1a1a1a;
+                position: absolute;
+                top: 60px;
+                right: 0;
+                width: 100%;
+                padding: 1rem;
+                z-index: 40;
+            }
+
+            .navbar ul.show {
+                display: flex;
+            }
+
+            .hamburger {
+                display: flex;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <div class="navbar">
+        <h2>Ubuntu Playground Server</h2>
+        <ul id="nav-menu">
+            <li><a href="/">Metrics</a></li>
+            <li><a href="/users">Users</a></li>
+            <li><a href="/services">Services</a></li>
+            <li><a href="/files">Files</a></li>
+            <li><a href="/execute">Execute</a></li>
+        </ul>
+        <div class="hamburger" id="hamburger">
+            <div></div>
+            <div></div>
+            <div></div>
+        </div>
+    </div>
+
+    <div class="dashboard">
+        <h1>System Metrics Dashboard</h1>
+        <div class="metrics-grid">
+            <div class="metric-card">
+                <h2 class="metric-title">CPU Utilization</h2>
+                <div class="graph-container">
+                    <div class="graph-bar" id="cpu-bar"></div>
+                </div>
+                <div class="metric-value" id="cpu-value">0%</div>
+                <div class="metric-label">Current Usage</div>
+                <div class="metric-details">
+                    <div class="detail-item">
+                        <div class="detail-value" id="cpu-tasks">0</div>
+                        <div class="detail-label">Active Tasks</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="metric-card">
+                <h2 class="metric-title">Memory Usage</h2>
+                <div class="graph-container">
+                    <div class="graph-bar memory-bar" id="memory-bar"></div>
+                </div>
+                <div class="metric-value" id="memory-value">0%</div>
+                <div class="metric-label">Current Usage</div>
+                <div class="metric-details">
+                    <div class="detail-item">
+                        <div class="detail-value" id="memory-used">0 GB</div>
+                        <div class="detail-label">Used</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-value" id="memory-total">0 GB</div>
+                        <div class="detail-label">Total</div>
+                    </div>
+                </div>
+            </div>
+            <h3>CPU up time: <span id="uptime"></span></h3>
+        </div>
+    </div>
+
+    <script>
+        // Navbar toggle
+        const hamburger = document.getElementById('hamburger');
+        const navMenu = document.getElementById('nav-menu');
+        
+        hamburger.addEventListener('click', function () {
+            navMenu.classList.toggle('show');
+        });
+
+        // Fetching metrics
+        function fetchMetrics() {
+            $.ajax({
+                url: '/api/system',
+                method: 'GET',
+                success: function(data) {
+                    // CPU metrics
+                    const cpuUtilization = data.cpu_utilization !== undefined ? data.cpu_utilization.toFixed(2) : 0;
+                    const cpuTasks = data.cpu_tasks !== undefined ? data.cpu_tasks : 0;
+                    
+                    // Memory metrics
+                    const memoryUsagePercentage = data.memory_usage_percentage !== undefined ? data.memory_usage_percentage : 0;
+                    const memoryUsedGb = data.memory_used_gb !== undefined ? data.memory_used_gb.toFixed(2) : 0;
+                    const memoryTotalGb = data.memory_total_gb !== undefined ? data.memory_total_gb.toFixed(2) : 0;
+
+                    // Update CPU elements
+                    document.getElementById('cpu-bar').style.height = `${cpuUtilization}%`;
+                    document.getElementById('cpu-value').textContent = `${cpuUtilization}%`;
+                    document.getElementById('cpu-tasks').textContent = cpuTasks;
+
+                    // Update Memory elements
+                    document.getElementById('memory-bar').style.height = `${memoryUsagePercentage}%`;
+                    document.getElementById('memory-value').textContent = `${memoryUsagePercentage}%`;
+                    document.getElementById('memory-used').textContent = `${memoryUsedGb} GB`;
+                    document.getElementById('memory-total').textContent = `${memoryTotalGb} GB`;
+
+                    document.getElementById('uptime').textContent = `${data.uptime_hours}:${data.uptime_minutes}:${data.uptime_seconds}`
+                },
+                error: function() {
+                    console.error("Failed to fetch metrics.");
+                }
+            });
+        }
+
+        // Fetch metrics every 2.5 seconds
+        setInterval(fetchMetrics, 1000);
+        fetchMetrics(); // Initial fetch
+    </script>
+</body>
+</html>

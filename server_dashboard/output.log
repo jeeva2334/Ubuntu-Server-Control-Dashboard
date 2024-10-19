@@ -1,0 +1,23 @@
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 274-928-210
+(23104) wsgi starting up on http://0.0.0.0:5000
+(23104) accepted ('192.168.113.204', 57209)
+192.168.113.204 - - [19/Oct/2024 07:48:02] "GET /api/system/ HTTP/1.1" 200 183 1.002300
+192.168.113.204 - - [19/Oct/2024 07:48:06] "GET / HTTP/1.1" 200 1651 0.004898
+192.168.113.204 - - [19/Oct/2024 07:48:21] "GET / HTTP/1.1" 200 1651 0.001166
+ * Detected change in '/home/sanjay/contol_panel/server_dashboard/routes/system.py', reloading
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 274-928-210
+(29103) wsgi starting up on http://0.0.0.0:5000
+ * Detected change in '/home/sanjay/contol_panel/server_dashboard/app.py', reloading
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 274-928-210
+(29112) wsgi starting up on http://0.0.0.0:5000
+(29112) accepted ('192.168.113.204', 57580)
+192.168.113.204 - - [19/Oct/2024 07:53:31] "GET / HTTP/1.1" 200 1649 0.004345
+192.168.113.204 - - [19/Oct/2024 07:54:02] "GET /api/system/ HTTP/1.1" 200 183 1.001324
+192.168.113.204 - - [19/Oct/2024 07:54:14] "GET /api/system/ HTTP/1.1" 200 183 1.002091
+192.168.113.204 - - [19/Oct/2024 07:54:16] "GET /api/system/ HTTP/1.1" 200 183 1.001920

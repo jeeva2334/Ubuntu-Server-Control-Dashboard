@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Users</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+
+        body {
+            background-color: #f0f2f5;
+            min-height: 100vh;
+        }
+
+        /* Navbar styling */
+        .navbar {
+            background-color: #1a1a1a;
+            padding: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: #ffffff;
+            position: relative;
+        }
+
+        .navbar h2 {
+            font-size: 1.25rem;
+            margin: 0;
+        }
+
+        .navbar ul {
+            list-style: none;
+            display: flex;
+            gap: 1.5rem;
+        }
+
+        .navbar ul li {
+            display: inline;
+        }
+
+        .navbar ul li a {
+            color: #ffffff;
+            text-decoration: none;
+        }
+
+        /* Hamburger icon for small screens */
+        .hamburger {
+            display: none;
+            flex-direction: column;
+            cursor: pointer;
+            gap: 0.25rem;
+        }
+
+        .hamburger div {
+            width: 25px;
+            height: 3px;
+            background-color: white;
+        }
+
+        @media (max-width: 768px) {
+            .navbar ul {
+                display: none;
+                flex-direction: column;
+                background-color: #1a1a1a;
+                position: absolute;
+                top: 60px;
+                right: 0;
+                width: 100%;
+                padding: 1rem;
+            }
+
+            .navbar ul.show {
+                display: flex;
+            }
+
+            .hamburger {
+                display: flex;
+            }
+        }
+
+        .container {
+            padding: 2rem;
+        }
+
+        .user-list {
+            margin-top: 25px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            overflow: auto;
+            height: 37vh;
+        }
+
+        .user-card {
+            background-color: white;
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s ease;
+            width: calc(100% / 3 - 2rem);
+            text-align: center;
+        }
+
+        .user-card a {
+            text-decoration: none;
+            color: #007bff;
+            font-size: 1.1rem;
+            font-weight: 500;
+        }
+
+        .user-card:hover {
+            transform: translateY(-5px);
+        }
+
+        /* Responsive for mobile view */
+        @media (max-width: 768px) {
+            .user-card {
+                width: calc(100% / 2 - 1rem);
+            }
+        }
+
+        @media (max-width: 480px) {
+            .user-card {
+                width: 100%;
+            }
+        }
+
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <h2>Ubuntu Playground Server</h2>
+        <ul id="nav-menu">
+            <li><a href="/">Metrics</a></li>
+            <li><a href="/users">Users</a></li>
+            <li><a href="/services">Services</a></li>
+            <li><a href="/files">Files</a></li>
+            <li><a href="/execute">Execute</a></li>
+        </ul>
+        <div class="hamburger" id="hamburger">
+            <div></div>
+            <div></div>
+            <div></div>
+        </div>
+    </div>
+
+    <div class="container">
+        <h1>Users</h1>
+        <h3>Total Users: <span id="len"></span></h3>
+
+        <div class="user-list" id="user-list">
+            <!-- User cards will be injected here -->
+        </div>
+    </div>
+
+    <div class="container">
+        <h1>Groups</h1>
+        <h3>Total Groups: <span id="grplen"></span></h3>
+
+        <div class="user-list" id="group-list">
+            <!-- User cards will be injected here -->
+        </div>
+    </div>
+
+    <script>
+        const hamburger = document.getElementById('hamburger');
+        const navMenu = document.getElementById('nav-menu');
+
+        hamburger.addEventListener('click', function() {
+            navMenu.classList.toggle('show');
+        });
+
+        // Function to inject dummy user data as links
+        function fetchUsers() {
+            $.ajax({
+                url: '/api/users',
+                method: 'GET',
+                success: (data)=>{
+                    const userList = document.getElementById('user-list');
+                    document.getElementById("len").textContent = `${data.len}`;
+
+                    data.users.forEach(user => {
+                        const userCard = `
+                            <div class="user-card">
+                                <a href="/users/${user}">${user}</a>
+                            </div>
+                        `;
+                        userList.innerHTML += userCard;
+                    });
+                },
+                error: function(error) {
+                    console.error("Failed to fetch metrics.", error);
+                }
+            })
+        }
+
+        function fetchGrp() {
+            $.ajax({
+                url: '/api/groups',
+                method: 'GET',
+                success: (data)=>{
+                    const grpList = document.getElementById('group-list');
+                    document.getElementById("grplen").textContent = `${data.len}`;
+
+                    data.groups.forEach(user => {
+                        const userCard = `
+                            <div class="user-card">
+                                <a href="/groups/${user.GID}">${user.name}</a>
+                            </div>
+                        `;
+                        grpList.innerHTML += userCard;
+                    });
+                },
+                error: function(error) {
+                    console.error("Failed to fetch metrics.", error);
+                }
+            })
+        }
+
+        fetchUsers();
+        fetchGrp();
+    </script>
+</body>
+</html>
