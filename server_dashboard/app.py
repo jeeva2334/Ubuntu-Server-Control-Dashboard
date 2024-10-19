@@ -33,5 +33,9 @@ def user_details_template(id):
 def group_details_template(id):
     return render_template("group_details.html", id=id)
 
+@app.route('/services')
+def services_template():
+    return render_template("services.html")
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
